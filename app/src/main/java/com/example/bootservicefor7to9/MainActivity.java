@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.app.admin.DeviceAdminInfo;
 import android.app.admin.DevicePolicyManager;
@@ -19,6 +20,7 @@ import android.app.backup.BackupAgentHelper;
 import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -38,6 +40,8 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.util.Set;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 public class MainActivity extends ComponentActivity {
 
     boolean getAllpermission;
@@ -46,7 +50,7 @@ public class MainActivity extends ComponentActivity {
 
     public String SN;
     public boolean First = true;
-
+    public final static int REQUEST_READ_PHONE_STATE = 1;
 
 
     TextView device;
@@ -56,7 +60,7 @@ public class MainActivity extends ComponentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.device_data);
-/*
+
         device = findViewById(R.id.textView2);
         os = findViewById(R.id.textView3);
         publicIP = findViewById(R.id.textView4);
@@ -77,10 +81,30 @@ public class MainActivity extends ComponentActivity {
         {
             First = false;
         }
-*/
+        //先打開取SN碼權限的操作
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+
+           // Intent intent = new Intent(Manifest.permission.READ_PHONE_STATE);
+            // ActivityCompat.requestPermissions(MainActivity.this, new String[]{"Settings.ACTION_MANAGE_OVERLAY_PERMISSION"},10);
+            //startActivity(intent);
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {//用户选择了禁止不再询问
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("权限申请")
+                        .setMessage("点击允许才可以使用我们的app哦")
+                        .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface mDialog, int id) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
+                            }
+                        });
+                builder.show();
+
+            }
+        }
 
 
     }
+
     public class MyPrefsBackupAgent extends BackupAgentHelper {
         // The name of the SharedPreferences file
         static final String PREFS = "SN";
@@ -118,72 +142,124 @@ public class MainActivity extends ComponentActivity {
         super.onResume();
 
         Log.v("MainActivity", "onResume");
-/*
-        if (First == false)
-        {
-            if (Settings.canDrawOverlays(MainActivity.this)) {
 
-                ComponentName componentName = new ComponentName(MainActivity.this, MyAdmin.class);
-                boolean isActive = devicePolicyManager.isAdminActive(componentName);
-                //檢查管理員權限
-                if (!isActive) {
-                    Log.v("MainActivity", "get lock");
-                    //要求打開管理員權限
-                    Intent intent = new Intent();
-                    intent.setAction(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-                    intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
-                    intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                            "You need to be a device admin to enable device admin.");
-                    startActivity(intent);
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
 
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {//用户选择了禁止不再询问
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("权限申请")
+                        .setMessage("点击允许才可以使用我们的app哦")
+                        .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface mDialog, int id) {
+                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
+                            }
+                        });
+                builder.show();
 
-                } else {
-                    //拿到所有需要申請的權限，就開始背景執行service
-                    startForegroundService(new Intent(this, ServerService.class));
-                    //Log.e("start service","Test success");
-                    //建立展示data View
-                    String userDeviceName = Settings.Global.getString(getContentResolver(), Settings.Global.DEVICE_NAME);
-                    if(userDeviceName == null)
-                        userDeviceName = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
-                    device.setText("載具名稱:"+userDeviceName);
-                    switch(Build.VERSION.SDK_INT) {
-                        case 29:
-                            os.setText("作業系統:" + "Android 10");
-                            break;
-                        case 30:
-                            os.setText("作業系統:" + "Android 11");
-                            break;
-                        case 31:
-                        case 32:
-                            os.setText("作業系統:" + "Android 12");
-                            break;
-                        case 33:
-                            os.setText("作業系統:" + "Android 13");
-                            break;
-                        default:
-                            os.setText("作業系統:" + "未支援版本");
-                            break;
-                    }
-
-                    publicIP.setText("Public IP:"+sharedPreferences.getString("pubIP","抓取中"));
-                    //finish();
-                }
-            } else {
-                //要求打開懸浮窗權限
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                // ActivityCompat.requestPermissions(MainActivity.this, new String[]{"Settings.ACTION_MANAGE_OVERLAY_PERMISSION"},10);
-                startActivity(intent);
-                // finish();
+            }
+            else
+            {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("权限申请")
+                        .setMessage("需要打開權限才可以使用我们的app哦，請在setting中找到本app並打開對應權限")
+                        .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface mDialog, int id) {
+                                finish();
+                            }
+                        });
+                builder.show();
             }
 
+        } else {
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            {
+                SN = Build.SERIAL;
+            }
+            else{
+                SN = Build.getSerial();
+            }
+            Log.e("test",SN);
+            if (First == false)
+            {
+
+                if (Settings.canDrawOverlays(MainActivity.this)) {
+
+                    ComponentName componentName = new ComponentName(MainActivity.this, MyAdmin.class);
+                    boolean isActive = devicePolicyManager.isAdminActive(componentName);
+                    //檢查管理員權限
+                    if (!isActive) {
+                        Log.v("MainActivity", "get lock");
+                        //要求打開管理員權限
+                        Intent intent = new Intent();
+                        intent.setAction(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
+                        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+                                "You need to be a device admin to enable device admin.");
+                        startActivity(intent);
+
+
+                    } else {
+                        //拿到所有需要申請的權限，就開始背景執行service
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(new Intent(this, ServerService.class));
+                        }
+                        else
+                        {
+                            startService(new Intent(this, ServerService.class));
+                        }
+                        //Log.e("start service","Test success");
+                        //建立展示data View
+                        String userDeviceName = Settings.Global.getString(getContentResolver(), Settings.Global.DEVICE_NAME);
+                        if(userDeviceName == null)
+                            userDeviceName = Settings.Secure.getString(getContentResolver(), "bluetooth_name");
+                        device.setText("載具名稱:"+userDeviceName);
+                        switch(Build.VERSION.SDK_INT) {
+                            case 24:
+                                os.setText("作業系統:" + "Android 7");
+                                break;
+                            case 25:
+                                os.setText("作業系統:" + "Android 7.1");
+                                break;
+
+                            case 26:
+                                os.setText("作業系統:" + "Android 8");
+                                break;
+                            case 27:
+                                os.setText("作業系統:" + "Android 8.1");
+                                break;
+                            case 28:
+                                os.setText("作業系統:" + "Android 9");
+                                break;
+                            default:
+                                os.setText("作業系統:" + "未支援版本");
+                                break;
+                        }
+
+                        publicIP.setText("Public IP:"+sharedPreferences.getString("pubIP","抓取中"));
+                        //finish();
+                    }
+                } else {
+                    //要求打開懸浮窗權限
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                    // ActivityCompat.requestPermissions(MainActivity.this, new String[]{"Settings.ACTION_MANAGE_OVERLAY_PERMISSION"},10);
+                    startActivity(intent);
+                    // finish();
+                }
+
+            }
+            else
+            {
+
+                //打開登記SN碼頁面，進行上傳SN碼並取得連接資訊的動作
+                Intent intent = new Intent(this, FirstActivity.class);
+                someActivityResultLauncher.launch(intent);
+            }
         }
-        else
-        {
-            //打開登記SN碼頁面，進行上傳SN碼並取得連接資訊的動作
-            Intent intent = new Intent(this, FirstActivity.class);
-            someActivityResultLauncher.launch(intent);
-        }*/
+
     }
+
+
     ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
@@ -214,7 +290,17 @@ public class MainActivity extends ComponentActivity {
                     finishActivity(result.getResultCode());
                 }
             });
+    ActivityResultLauncher<Intent> somepermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
 
+                    }
+                    finishActivity(result.getResultCode());
+                }
+            });
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed

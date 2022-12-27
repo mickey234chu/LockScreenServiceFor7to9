@@ -5,6 +5,7 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +38,7 @@ public class FirstActivity extends AppCompatActivity {
     TextView textView;
     EditText et;
     Button btnSend;
-    String SN;
+    String SN,domain;
     boolean Hrecord = false;
     boolean webtest = false;
     HttpURLConnection connection;
@@ -58,6 +59,7 @@ public class FirstActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(FirstActivity.this, R.color.purple_500));
 
         textView = findViewById(R.id.textView);
+        //SN碼在7-9可以直接拿到，所以只要有分區資訊欄就好了
         et = findViewById(R.id.et);
         btnSend = findViewById(R.id.btnSend);
 
@@ -74,16 +76,24 @@ public class FirstActivity extends AppCompatActivity {
                 {
                     if(et.getText().length()<=0)
                     {
-                        et.setHint("SN碼");
+                        et.setHint("分區資訊");
                     }
                 }
             }
         });
-
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+        {
+            SN = Build.SERIAL;
+        }
+        else{
+            SN = Build.getSerial();
+        }
+        Log.i("First information",SN);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SN = et.getText().toString().trim();
+
+                domain = et.getText().toString().trim();
 
                 StringBuilder response = new StringBuilder();
 

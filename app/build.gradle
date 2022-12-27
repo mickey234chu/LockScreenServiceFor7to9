@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "com.example.bootservicefor7to9"
         minSdk 24
-        targetSdk 32
+        targetSdk 28
         versionCode 1
         versionName "1.0"
 
@@ -22,6 +22,7 @@ android {
         }
     }
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -41,4 +42,6 @@ dependencies {
     implementation("org.slf4j:slf4j-api:1.7.5")
     implementation 'com.android.volley:volley:1.2.1'
     implementation("org.slf4j:slf4j-log4j12:1.7.5")
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    implementation 'pub.devrel:easypermissions:3.0.0'
 }

@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -37,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.core.app.NotificationCompat;
 
 import com.android.volley.Request;
@@ -44,6 +46,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.apache.log4j.lf5.util.Resource;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
@@ -394,6 +397,14 @@ public class ServerService<Myboolean> extends Service {
             height=metrics2.getBounds().height()+insets.top+insets.bottom;
 
         }
+        else
+        {
+            Resources resources = getApplicationContext().getResources();
+            int resourceId = resources.getIdentifier("status_bar_height", "dimen", "android");
+            height += resources.getDimensionPixelSize(resourceId);
+            int resourceId2 = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+            height += resources.getDimensionPixelSize(resourceId2);
+        }
         Log.i("Width,Height:",width +","+height);
 
         //xml -> view
@@ -416,14 +427,20 @@ public class ServerService<Myboolean> extends Service {
         }
 
         floatView.setKeepScreenOn(true);
-
+        floatView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         floatView.setOnTouchListener((view, motionEvent) -> {
                Log.d("TestService","testtouch");
                return mGestureDetector.onTouchEvent(motionEvent);
 
            });
 
-        int LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        int LAYOUT_TYPE;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        }else {
+            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_PHONE;
+        }
+
         floatWindowLayoutParam = new WindowManager.LayoutParams(
                 (int) width,
                 (int)height,
@@ -441,6 +458,7 @@ public class ServerService<Myboolean> extends Service {
         floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
         floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN;
         floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+        floatWindowLayoutParam.flags |= WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
         // X and Y value of the window is set
         floatWindowLayoutParam.x = 0;
         floatWindowLayoutParam.y = 0;
@@ -453,6 +471,10 @@ public class ServerService<Myboolean> extends Service {
                     | android.view.WindowInsets.Type.navigationBars());
 
 
+
+        }
+        else
+        {
 
         }
 
@@ -470,31 +492,46 @@ public class ServerService<Myboolean> extends Service {
 
         }
 
+        int LAYOUT_TYPE;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        }else {
+            LAYOUT_TYPE = WindowManager.LayoutParams.TYPE_PHONE;
+        }
         if(null != lockManager)
         {
             params = new WindowManager.LayoutParams(
                     1,1,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    LAYOUT_TYPE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                     PixelFormat.TRANSLUCENT
             );
-            params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                params.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+            }
+            else
+            {
+                params.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
+            }
             //params.type = WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG;
             params.format = PixelFormat.RGBA_8888;
             params.flags = WindowManager.LayoutParams.FLAG_FULLSCREEN;
         }
         mMoniterView.setFocusable(true);
         mMoniterView.setKeepScreenOn(true);
-
+        mMoniterView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         try
         {
             lockManager.addView(mMoniterView,params);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 controller2 = mMoniterView.getWindowInsetsController();
-                controller2.hide(android.view.WindowInsets.Type.statusBars()
-                        | android.view.WindowInsets.Type.navigationBars());
+                controller2.hide(WindowInsets.Type.statusBars()
+                        | WindowInsets.Type.navigationBars());
 
 
+
+            }
+            else {
 
             }
 
@@ -534,11 +571,15 @@ public class ServerService<Myboolean> extends Service {
         @Override
         public void onReceive(Context context,Intent intent)
         {
-            devicePolicyManager.lockNow();
+            //devicePolicyManager.lockNow();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
                 controller.hide(WindowInsets.Type.statusBars()
                         | WindowInsets.Type.navigationBars());
+            }
+            else
+            {
+
             }
         }
     }
@@ -974,9 +1015,8 @@ public class ServerService<Myboolean> extends Service {
                 Alarmconnection.connect();
                 Gettime = Calendar.getInstance();
                 DateTimeFormatter dtf = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                }
+
+                dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
                 if(!SendIP.isEmpty())
@@ -989,10 +1029,7 @@ public class ServerService<Myboolean> extends Service {
                     return;
                 }
                 Data data = null;
-                //API > 26
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    data = new Data(SendIP, dtf.format(LocalDateTime.now()), ID,owner);
-                }
+                data = new Data(SendIP, dtf.format(LocalDateTime.now()), ID,owner);
 
                 JSONObject jsonObject = new JSONObject();
                 try{
