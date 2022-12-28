@@ -44,7 +44,7 @@ public class FirstActivity extends AppCompatActivity {
     HttpURLConnection connection;
     URL url;
     JSONObject jsonObject = null;
-
+    Boolean test = true;
 
 
     @Override
@@ -88,6 +88,10 @@ public class FirstActivity extends AppCompatActivity {
         else{
             SN = Build.getSerial();
         }
+        if(test)
+        {
+            SN="RF8T60G4X9V";
+        }
         Log.i("First information",SN);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +112,8 @@ public class FirstActivity extends AppCompatActivity {
                     {
                         //real server we used(debug)
                         url = new URL("http://imoeedge20220914134800.azurewebsites.net/api/UnitInfro");
+                        String link = et.getText().toString();
+                        url = new URL(link);
 
                     }
                 } catch (MalformedURLException e) {

@@ -66,8 +66,10 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -80,15 +82,16 @@ public class ServerService<Myboolean> extends Service {
     boolean socketest = false;
     boolean functiontest = false;
     boolean issocketchange = false;
-    boolean changesocket = false;
+    boolean newsocket_Flag = false;
     static boolean working= false;
     private boolean Block_Flag = false;
     private boolean Lock_Flag = false;
     private boolean Lost_Flag = false;
     private MyWebSocketClient websocket;
+    ArrayList<MyWebSocketClient> socket_List =  new ArrayList<MyWebSocketClient>();
     private Thread Thread1 = null;
     private static Thread Thread2 = null;
-
+    private static Thread Thread3 = null;
     private String pubIP;
 
     public static String owner;
@@ -139,7 +142,7 @@ public class ServerService<Myboolean> extends Service {
     URL url;
     //本地 ip
     URL ipurl = new URL("https://api.ipify.org?format=json");
-    //websocket
+    //最初連接的websocket(用於連接主納管單位)
     String websocketLink;
     //URI uri;
     public ServerService() throws MalformedURLException {
@@ -160,7 +163,6 @@ public class ServerService<Myboolean> extends Service {
     {
         // The service is being created
         super.onCreate();
-
         Log.v("TestService","start");
         //API > 26
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -200,9 +202,9 @@ public class ServerService<Myboolean> extends Service {
         //設定發送資料的API之連接
         if(socketest)
         {
+
             url = new URL("http://imoeedge20220914134800.azurewebsites.net/api/UserTime");
             Log.e("apiaddress","http://imoeedge20220914134800.azurewebsites.net/api/UserTime");
-
 
         }
         else
@@ -247,7 +249,8 @@ public class ServerService<Myboolean> extends Service {
 
 
         //開始連接socket
-        Thread1 = new Thread(new Thread1());
+        Thread1 = new Thread(new Thread1(websocketLink));
+
     }
     //鎖定螢幕時，用來探測手指動作
     private static class MyGestureDetectorListener implements GestureDetector.OnGestureListener {
@@ -650,13 +653,18 @@ public class ServerService<Myboolean> extends Service {
         AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         am.cancel(pi);    //取消鬧鐘，只差在這裡
     }
-
+    int totalsocket = 0;
     //websocket
     public class MyWebSocketClient extends WebSocketClient
     {
+        //記錄當前websocket,用於重連或移除
+        public int count = 0;
+        public String link ;
 
-        public MyWebSocketClient(URI serverUri) {
+        public MyWebSocketClient(URI serverUri ) {
             super(serverUri,new Draft_6455());
+            count = ++totalsocket;
+            link = serverUri.toString();
             Log.e("websocket","oncreate,link = "+ serverUri.toString());
         }
 
@@ -709,14 +717,14 @@ public class ServerService<Myboolean> extends Service {
                                     screentext.setText(LockMessage);
                                     if(text.length()>0) {
 
-                                        websocket.send(ID+"set text!");
+                                        this.send(ID+"set text!");
                                     }
                                 });
                             }
                             else
                             {
                                 Lock_Flag = true;
-                                websocket.send(ID+"lock!");
+                                this.send(ID+"lock!");
                             }
 
                         }
@@ -741,7 +749,7 @@ public class ServerService<Myboolean> extends Service {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt("Starttime",StartLock).putInt("Endtime",StopLock).commit();
                             Log.e("time",Integer.toString(StopLock));
-                            websocket.send(ID+" set time!");
+                            this.send(ID+" set time!");
 
 
                         }
@@ -759,7 +767,7 @@ public class ServerService<Myboolean> extends Service {
                         editor.putBoolean("lock", Lock_Flag).putBoolean("lost",Lost_Flag).commit();
                         if(!timerlockhandle(StartLock,StopLock))
                         {
-                            websocket.send(ID+" unlock!");
+                            this.send(ID+" unlock!");
                         }
 
                     }
@@ -779,17 +787,21 @@ public class ServerService<Myboolean> extends Service {
                             Log.v("TestService","resettimer");
 
                         }
-                        websocket.send(ID+" timereset!");
+                        this.send(ID+" timereset!");
                     }
                     else if (message.contains(ID+"_switch:"))//轉移新的websocket
                     {
-                        websocketLink = message.replaceFirst(ID+"_switch","").replaceFirst(":","")+ID;
+                        String newLink = message.replaceFirst(ID+"_switch","").replaceFirst(":","")+ID;
                         //更換連接
-                        Log.e("websocket link switch to:",websocketLink);
+                        Thread newThread = new Thread(new Thread1(newLink));
+                        newThread.start();
+                        //告知需要開新socket
+                        //newsocket_Flag = true;
 
-                        //告知需要轉換socket
-                        changesocket = true;
-
+                    }
+                    else if(message.contains(ID+"_close"))
+                    {
+                        closeReceiveConnect(this);
                     }
                     else
                     {
@@ -799,7 +811,7 @@ public class ServerService<Myboolean> extends Service {
                             handler.post(() -> {
                                 Toast.makeText(getApplicationContext(),
                                         text, Toast.LENGTH_LONG).show();
-                                websocket.send(ID + " message!");
+                                this.send(ID + " message!");
                             });
                         }
                         //Log.e("MESSAGE",text);
@@ -817,8 +829,8 @@ public class ServerService<Myboolean> extends Service {
 
         @Override
         public void onClose(int code, String reason, boolean remote) {
-            Log.e("websocketclose",reason+"|"+code);
-
+            Log.e("websocketclose",reason+"|"+code+", ID= " + this.count +"|we have "+socket_List.size()+"socket|"+this.link);
+            totalsocket--;
             //非正常關閉
             if(code != 1 || code != 1000)
             {
@@ -830,7 +842,7 @@ public class ServerService<Myboolean> extends Service {
             }
 
 
-            closeReceiveConnect();
+            closeReceiveConnect(this);
         }
 
         @Override
@@ -842,23 +854,20 @@ public class ServerService<Myboolean> extends Service {
     }
 
     //初始化 websocket
-    public void initwebSocket()
+    public void initwebSocket(String link)
     {
+        MyWebSocketClient newWebsocket =null;
 
-        if(null != websocket)
-        {
-            websocket = null;
-        }
         //使用已取得的uri建立連接
         URI uri;
-        uri = URI.create(websocketLink);
+        uri = URI.create(link);
         Log.e("initwebsocket link:", uri.toString());
-        websocket = new MyWebSocketClient(uri);
+        newWebsocket = new MyWebSocketClient(uri);
         try
         {
 
-            websocket.connectBlocking();
-            changesocket = false;
+            newWebsocket.connectBlocking();
+            socket_List.add(newWebsocket);
 
         }
         catch (InterruptedException e)
@@ -870,7 +879,7 @@ public class ServerService<Myboolean> extends Service {
 
     }
     //心跳包
-    private  static  final long HEART_BEAT_RATE = 2*1000;
+    private  static  final long HEART_BEAT_RATE = 10*1000;
     private final Handler mHandler = new Handler();
     //定時檢查鎖定
     private final Runnable LockFlagRunnable = new Runnable() {
@@ -938,10 +947,7 @@ public class ServerService<Myboolean> extends Service {
 
                 }
             }
-            if(changesocket)
-            {
-                closeReceiveConnect();
-            }
+
             mHandler.postDelayed(this,2*1000);
         }
     };
@@ -949,25 +955,32 @@ public class ServerService<Myboolean> extends Service {
     private final Runnable heartBeatRunnable = new Runnable() {
         @Override
         public void run() {
-            if(websocket != null)
-            {
-                if (websocket.isClosed())
+            for (MyWebSocketClient C:socket_List) {
+                if(C != null)
                 {
-                    //重新連接websocket
-                    reconnectWs();
+                    if (C.isClosed())
+                    {
+                        //重新連接websocket
+                       /* String link = C.link;
+                        C = null;
+                        socket_List.remove(C);
+                        initwebSocket(link);*/
+                       reconnectWs(C);
+                    }
+                    else if (C.isOpen())
+                    {
+                       // C.send(C.count +"still alive");
+                        Log.e("websocket","still alive");
+                    }
                 }
-                else if (websocket.isOpen())
+                else
                 {
-                    //websocket.send(ID +"still alive");
-                    Log.e("websocket","still alive");
+
+                    socket_List.remove(C);
+                    //initwebSocket(link);
                 }
             }
-            else
-            {
-                //websocket重新初始化
-                websocket= null;
-                initwebSocket();
-            }
+
 
 
 
@@ -977,15 +990,17 @@ public class ServerService<Myboolean> extends Service {
 
     //用來呼叫 websocket 連接和開啟定時器的thread
     class Thread1 implements Runnable {
+        public String socket_link;
+        public Thread1(String link)
+        {
+            this.socket_link = link;
+        }
         public void run() {
             //初始化發送資料的定時器
             if(!functiontest) {
                 //初始化 並開啟websocket功能
-                initwebSocket();
-                //打開心跳包
-                mHandler.postDelayed(heartBeatRunnable, HEART_BEAT_RATE);
-                //進行定時lockflag檢查
-                mHandler.postDelayed(LockFlagRunnable,2*1000);
+                initwebSocket(socket_link.trim());
+
 
             }
 
@@ -1074,12 +1089,12 @@ public class ServerService<Myboolean> extends Service {
         }
     }
     //websocket 關閉連接用
-    private  void closeReceiveConnect()
+    private  void closeReceiveConnect(MyWebSocketClient C)
     {
         try{
-            if(null != websocket)
+            if(null != C)
             {
-                websocket.close(1000);
+                C.close(1000);
             }
         }
         catch (Exception e)
@@ -1087,7 +1102,8 @@ public class ServerService<Myboolean> extends Service {
             e.printStackTrace();
         }
         finally {
-            websocket = null;
+            C = null;
+            socket_List.remove(C);
         }
 
     }
@@ -1095,7 +1111,7 @@ public class ServerService<Myboolean> extends Service {
 
 
     //重新連線用
-    private  void reconnectWs(){
+    private  void reconnectWs(MyWebSocketClient C){
         mHandler.removeCallbacks(heartBeatRunnable);
         new Thread()
         {
@@ -1105,7 +1121,9 @@ public class ServerService<Myboolean> extends Service {
                 try
                 {
                     Log.e("reconn","reconn");
-                    websocket.reconnectBlocking();
+                    //socket_List.remove(C);
+                    C.reconnectBlocking();
+                    //socket_List.add(C);
                 }
                 catch (InterruptedException e)
                 {
@@ -1138,7 +1156,10 @@ public class ServerService<Myboolean> extends Service {
             if(isActive)
             {
                 Thread1.start();
-
+                //打開心跳包
+                mHandler.postDelayed(heartBeatRunnable, HEART_BEAT_RATE);
+                //進行定時lockflag檢查
+                mHandler.postDelayed(LockFlagRunnable,2*1000);
                 Log.e("TestService","restart thread");
             }
             else
@@ -1190,7 +1211,10 @@ public class ServerService<Myboolean> extends Service {
             Block_Flag = false;
         }
         //關閉websocket
-        closeReceiveConnect();
+        for (MyWebSocketClient C:socket_List) {
+            closeReceiveConnect(C);
+        }
+
         Log.e("TestService","I am died");
         unregisterReceiver(mAlarmBroadcastReceiver);
         //重啟Service
