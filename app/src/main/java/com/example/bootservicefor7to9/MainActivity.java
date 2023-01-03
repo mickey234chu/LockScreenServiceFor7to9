@@ -196,6 +196,7 @@ public class MainActivity extends ComponentActivity {
                         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, componentName);
                         intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                                 "You need to be a device admin to enable device admin.");
+
                         startActivity(intent);
 
 
@@ -206,6 +207,7 @@ public class MainActivity extends ComponentActivity {
                         }
                         else
                         {
+                            //ContextCompat.startForegroundService(this,ServerService.class);
                             startService(new Intent(this, ServerService.class));
                         }
                         //Log.e("start service","Test success");

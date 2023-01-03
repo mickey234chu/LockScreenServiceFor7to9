@@ -35,12 +35,12 @@ import java.util.Calendar;
 
 public class FirstActivity extends AppCompatActivity {
 
-    TextView textView;
+    TextView SNTEXT;
     EditText et;
     Button btnSend;
     String SN,domain;
     boolean Hrecord = false;
-    boolean webtest = false;
+    boolean webtest = true;
     HttpURLConnection connection;
     URL url;
     JSONObject jsonObject = null;
@@ -58,7 +58,7 @@ public class FirstActivity extends AppCompatActivity {
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(ContextCompat.getColor(FirstActivity.this, R.color.purple_500));
 
-        textView = findViewById(R.id.textView);
+        SNTEXT = findViewById(R.id.SNTEXT);
         //SN碼在7-9可以直接拿到，所以只要有分區資訊欄就好了
         et = findViewById(R.id.et);
         btnSend = findViewById(R.id.btnSend);
@@ -89,6 +89,7 @@ public class FirstActivity extends AppCompatActivity {
             SN = Build.getSerial();
         }
         Log.i("First information",SN);
+        SNTEXT.setText("此裝置SN碼為:" + SN);
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,13 +102,15 @@ public class FirstActivity extends AppCompatActivity {
                     if(webtest)
                     {
                         //server for testing function(debug)
+                        //自製測試用web service
                         url = new URL("http://imoeedge20220914134800.azurewebsites.net/api/UnitInfro");
 
                     }
                     else
                     {
                         //real server we used(debug)
-                        url = new URL("http://imoeedge20220914134800.azurewebsites.net/api/UnitInfro");
+                        //抓分區資訊輸入當連接link
+                        url = new URL(domain);
 
                     }
                 } catch (MalformedURLException e) {
@@ -183,29 +186,43 @@ public class FirstActivity extends AppCompatActivity {
                             else
                             {
 
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(getApplicationContext(),
-                                                "登記失敗，請檢查網路連線並確定SN輸入是否正確",Toast.LENGTH_LONG).show();
-                                        Log.e("HTTP","fail text");
-                                    }
-                                });
-                                // for testing
+                                // for testing,如果testing會回傳假資料
                                 if(webtest)
                                 {
+
                                     Intent intent = new Intent(FirstActivity.this, MainActivity.class);
                                     intent.putExtra("SN", SN);
 
                                         intent.putExtra("socketaddress", "ws://imoeedge20220914134800.azurewebsites.net/api/WebSoket?nickName=");
                                         intent.putExtra("apiaddress", "http://imoeedge20220914134800.azurewebsites.net/api/Usertime");
                                         intent.putExtra("unitinfro", "基隆市市立八堵國小");
-
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "測試",Toast.LENGTH_LONG).show();
+                                            Log.e("HTTP","fail text");
+                                        }
+                                    });
 
                                     Log.e("SN", SN);
                                     setResult(RESULT_OK, intent);
+
                                     finish();
                                 }
+                                if(!webtest)
+                                {
+                                    runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(),
+                                                "登記失敗，請檢查網路連線並確定SN輸入是否正確",Toast.LENGTH_LONG).show();
+                                        Log.e("HTTP","fail text");
+                                    }
+                                    });
+                                }
+
+
 
                             }
                         }

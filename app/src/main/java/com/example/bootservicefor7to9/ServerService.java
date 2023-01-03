@@ -75,6 +75,7 @@ import java.util.TimerTask;
 public class ServerService<Myboolean> extends Service {
 
 
+
     IBinder mBinder;      // interface for clients that bind
     boolean mAllowRebind; // indicates whether onRebind should be used
     boolean socketest = false;
@@ -165,6 +166,14 @@ public class ServerService<Myboolean> extends Service {
         //API > 26
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForeground(1,getNotification());
+        }
+        else
+        {
+            Notification.Builder builder = new Notification.Builder(this);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            builder.setContentTitle("Service start");
+            builder.setContentText("Service is start");
+            startForeground(1, builder.build());
         }
         Log.i("TestService","startForeground");
 
@@ -870,7 +879,7 @@ public class ServerService<Myboolean> extends Service {
 
     }
     //心跳包
-    private  static  final long HEART_BEAT_RATE = 2*1000;
+    private  static  final long HEART_BEAT_RATE = 20*1000;
     private final Handler mHandler = new Handler();
     //定時檢查鎖定
     private final Runnable LockFlagRunnable = new Runnable() {
