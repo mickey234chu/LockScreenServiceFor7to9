@@ -68,9 +68,9 @@ public class FirstActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapter =
                 ArrayAdapter.createFromResource(this,    //對應的Context
                         R.array.URL_list,                             //資料選項內容
-                        android.R.layout.simple_spinner_item);  //預設Spinner未展開時的View(預設及選取後樣式)
+                       R.layout.myspinner);  //預設Spinner未展開時的View(預設及選取後樣式)
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(R.layout.myspinner_background);
         URL_Spinner.setAdapter(adapter);
 
 
@@ -91,8 +91,8 @@ public class FirstActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                domain = URL_Spinner.getContext().toString();
-
+                domain = String.valueOf(URL_Spinner.getSelectedItem());
+                Log.d("HTTP",domain);
                 StringBuilder response = new StringBuilder();
 
                 try {

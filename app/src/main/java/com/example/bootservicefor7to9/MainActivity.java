@@ -88,17 +88,23 @@ public class MainActivity extends ComponentActivity {
            // Intent intent = new Intent(Manifest.permission.READ_PHONE_STATE);
             // ActivityCompat.requestPermissions(MainActivity.this, new String[]{"Settings.ACTION_MANAGE_OVERLAY_PERMISSION"},10);
             //startActivity(intent);
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {//用户选择了禁止不再询问
-                final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("权限申请")
-                        .setMessage("点击允许才可以使用我们的app哦")
-                        .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface mDialog, int id) {
-                                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
-                            }
-                        });
-                builder.show();
+            try {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {//用户选择了禁止不再询问
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("权限申请")
+                            .setMessage("点击允许才可以使用我们的app哦")
+                            .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface mDialog, int id) {
+                                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
+                                }
+                            });
+                    builder.show();
 
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
 
