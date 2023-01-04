@@ -7,13 +7,17 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +43,7 @@ public class FirstActivity extends AppCompatActivity {
 
     TextView SNTEXT;
     Spinner URL_Spinner;
+    ImageView IV;
     Button btnSend;
     String SN,domain;
     boolean Hrecord = false;
@@ -73,6 +78,18 @@ public class FirstActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(R.layout.myspinner_background);
         URL_Spinner.setAdapter(adapter);
 
+        //放圖片
+        IV = findViewById(R.id.imageView);
+
+        //DisplayMetrics metrics = new DisplayMetrics();
+        //getWindowManager().getDefaultDisplay().getMetrics(metrics);
+       // int w = metrics.widthPixels;
+        //int h = metrics.heightPixels;
+        //IV.setX(w/2);
+       // ViewGroup.MarginLayoutParams margin = new ViewGroup.MarginLayoutParams(IV.getLayoutParams());
+        //margin.setMargins(0,IV.getTop(),0,IV.getBottom());
+        //RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(margin);
+        Log.e("HTTP",IV.getLeft()+","+IV.getTop()+","+IV.getRight()+","+IV.getBottom());
 
         btnSend = findViewById(R.id.btnSend);
 
