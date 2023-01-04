@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BootServiceFor7to9</string>
     <string-array name="URL_list">
+        <item>請選擇分區資訊</item>
         <item>分區資訊1</item>
         <item>分區資訊2</item>
         <item>分區資訊3</item>
@@ -9,6 +10,5 @@
         <item>分區資訊6</item>
         <item>分區資訊7</item>
         <item>分區資訊8</item>
-        <item>分區資訊9</item>
     </string-array>
 </resources>

@@ -2,8 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:background="@drawable/bg"
     tools:context=".FirstActivity">
 
@@ -18,27 +18,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.812" />
+        app:layout_constraintVertical_bias="0.804" />
 
     <Spinner
         android:id="@+id/URL_Spinner"
-        android:layout_width="314dp"
+        style="@style/mySpinnerItemStyle"
+        android:layout_width="312dp"
         android:layout_height="48dp"
-        android:layout_marginLeft="10dp"
         android:background="@drawable/shape_selector"
         android:ems="10"
         android:hint="分區資訊"
         android:inputType="textPersonName"
         android:minHeight="48dp"
-        style="@style/mySpinnerItemStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.478"
 
-        />
+        app:layout_constraintVertical_bias="0.478" />
 
     <Button
         android:id="@+id/btnSend"
@@ -58,15 +55,12 @@
         android:id="@+id/imageView"
         android:layout_width="66dp"
         android:layout_height="68dp"
-        android:layout_marginStart="173dp"
-        android:layout_marginTop="162dp"
-        android:layout_marginEnd="173dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginBottom="50dp"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/icon_sn"
         tools:ignore="MissingConstraints" />
 
@@ -77,13 +71,13 @@
         android:layout_marginStart="176dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="177dp"
-        android:layout_marginBottom="2dp"
-        android:textColor="#ffffff"
+        android:layout_marginBottom="8dp"
         android:text="此裝置的SN碼為:"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toTopOf="@+id/URL_Spinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.125" />
 </androidx.constraintlayout.widget.ConstraintLayout>
