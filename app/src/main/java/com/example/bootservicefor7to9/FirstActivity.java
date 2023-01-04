@@ -11,8 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +38,7 @@ import java.util.Calendar;
 public class FirstActivity extends AppCompatActivity {
 
     TextView SNTEXT;
-    EditText et;
+    Spinner URL_Spinner;
     Button btnSend;
     String SN,domain;
     boolean Hrecord = false;
@@ -59,28 +61,23 @@ public class FirstActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(FirstActivity.this, R.color.purple_500));
 
         SNTEXT = findViewById(R.id.SNTEXT);
-        //SN碼在7-9可以直接拿到，所以只要有分區資訊欄就好了
-        et = findViewById(R.id.et);
+        //SN碼在7-9可以直接拿到，所以只要有分區資訊Spinner就好了
+        URL_Spinner = findViewById(R.id.URL_Spinner);
+
+        //取出資料放入spinner
+        ArrayAdapter<CharSequence> adapter =
+                ArrayAdapter.createFromResource(this,    //對應的Context
+                        R.array.URL_list,                             //資料選項內容
+                        android.R.layout.simple_spinner_item);  //預設Spinner未展開時的View(預設及選取後樣式)
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        URL_Spinner.setAdapter(adapter);
+
+
         btnSend = findViewById(R.id.btnSend);
 
 
-        et.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus)
-                {
-                    et.setHint("");
 
-                }
-                else
-                {
-                    if(et.getText().length()<=0)
-                    {
-                        et.setHint("分區資訊");
-                    }
-                }
-            }
-        });
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
         {
             SN = Build.SERIAL;
@@ -94,7 +91,7 @@ public class FirstActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                domain = et.getText().toString().trim();
+                domain = URL_Spinner.getContext().toString();
 
                 StringBuilder response = new StringBuilder();
 

@@ -14,14 +14,14 @@
         android:text="輸入分區資訊:"
         android:textColor="@color/white"
         android:textSize="34sp"
-        app:layout_constraintBottom_toTopOf="@+id/et"
+        app:layout_constraintBottom_toTopOf="@+id/URL_Spinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.812" />
 
-    <EditText
-        android:id="@+id/et"
+    <Spinner
+        android:id="@+id/URL_Spinner"
         android:layout_width="314dp"
         android:layout_height="48dp"
         android:layout_marginLeft="10dp"
@@ -30,7 +30,6 @@
         android:hint="分區資訊"
         android:inputType="textPersonName"
         android:minHeight="48dp"
-        android:paddingLeft="10dp"
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,7 +37,9 @@
         app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.478" />
+        app:layout_constraintVertical_bias="0.478"
+
+        />
 
     <Button
         android:id="@+id/btnSend"
@@ -80,7 +81,7 @@
         android:layout_marginBottom="2dp"
         android:textColor="#ffffff"
         android:text="此裝置的SN碼為:"
-        app:layout_constraintBottom_toTopOf="@+id/et"
+        app:layout_constraintBottom_toTopOf="@+id/URL_Spinner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
