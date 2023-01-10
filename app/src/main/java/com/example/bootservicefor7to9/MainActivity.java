@@ -84,11 +84,11 @@ public class MainActivity extends ComponentActivity {
         //先打開取SN碼權限的操作
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
            // Intent intent = new Intent(Manifest.permission.READ_PHONE_STATE);
             // ActivityCompat.requestPermissions(MainActivity.this, new String[]{"Settings.ACTION_MANAGE_OVERLAY_PERMISSION"},10);
             //startActivity(intent);
-            try {
+           /* try {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {//用户选择了禁止不再询问
                     final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setTitle("权限申请")
@@ -105,7 +105,7 @@ public class MainActivity extends ComponentActivity {
             catch (Exception e)
             {
                 e.printStackTrace();
-            }
+            }*/
         }
 
 
@@ -168,7 +168,7 @@ public class MainActivity extends ComponentActivity {
             {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("权限申请")
-                        .setMessage("需要打開權限才可以使用我们的app哦，請在setting中找到本app並打開對應權限")
+                        .setMessage("需要打開權限才可以使用我们的app哦，請在setting中找到本app並打開權限頁面開啟所有要求權限")
                         .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface mDialog, int id) {
                                 finish();

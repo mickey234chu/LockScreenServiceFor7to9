@@ -67,8 +67,10 @@ public class FirstActivity extends AppCompatActivity {
 
         SNTEXT = findViewById(R.id.SNTEXT);
         //SN碼在7-9可以直接拿到，所以只要有分區資訊Spinner就好了
+        //Spinner text
         URL_Spinner = findViewById(R.id.URL_Spinner);
-
+        //Spinner value(URL)
+        String[] link = getResources().getStringArray(R.array.URL_list_value);
         //取出資料放入spinner
         ArrayAdapter<CharSequence> adapter =
                 ArrayAdapter.createFromResource(this,    //對應的Context
@@ -77,20 +79,6 @@ public class FirstActivity extends AppCompatActivity {
 
         adapter.setDropDownViewResource(R.layout.myspinner_background);
         URL_Spinner.setAdapter(adapter);
-
-        //放圖片
-        IV = findViewById(R.id.imageView);
-
-        //DisplayMetrics metrics = new DisplayMetrics();
-        //getWindowManager().getDefaultDisplay().getMetrics(metrics);
-       // int w = metrics.widthPixels;
-        //int h = metrics.heightPixels;
-        //IV.setX(w/2);
-       // ViewGroup.MarginLayoutParams margin = new ViewGroup.MarginLayoutParams(IV.getLayoutParams());
-        //margin.setMargins(0,IV.getTop(),0,IV.getBottom());
-        //RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(margin);
-        Log.e("HTTP",IV.getLeft()+","+IV.getTop()+","+IV.getRight()+","+IV.getBottom());
-
         btnSend = findViewById(R.id.btnSend);
 
 
@@ -107,8 +95,8 @@ public class FirstActivity extends AppCompatActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                domain = String.valueOf(URL_Spinner.getSelectedItem());
+                //根據選擇提取對應的URL
+                domain = link[URL_Spinner.getSelectedItemPosition()];
                 Log.d("HTTP",domain);
                 StringBuilder response = new StringBuilder();
 
@@ -122,7 +110,7 @@ public class FirstActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        //real server we used(debug)
+                        //real server we used
                         //抓分區資訊輸入當連接link
                         url = new URL(domain);
 
@@ -131,7 +119,7 @@ public class FirstActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                if (!SN.isEmpty()) {
+                if (!SN.isEmpty()&&!domain.equals("0")) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -230,7 +218,7 @@ public class FirstActivity extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         Toast.makeText(getApplicationContext(),
-                                                "登記失敗，請檢查網路連線並確定SN輸入是否正確",Toast.LENGTH_LONG).show();
+                                                "登記失敗，請檢查網路連線並確定選擇之所屬分區是否正確",Toast.LENGTH_LONG).show();
                                         Log.e("HTTP","fail text");
                                     }
                                     });
@@ -250,7 +238,12 @@ public class FirstActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Log.e("HTTP","Empty SN");
+                    String errormessage = "缺失以下資訊:\n";
+                    if(domain.equals("請選擇分區資訊"))
+                    {
+                        errormessage += "分區資訊\n";
+                    }
+                    Log.e("HTTP",errormessage);
                 }
 
             }
