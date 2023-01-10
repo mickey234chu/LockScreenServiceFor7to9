@@ -47,6 +47,7 @@ public class FirstActivity extends AppCompatActivity {
     Button btnSend;
     String SN,domain;
     boolean Hrecord = false;
+    //控制當前運行時使用測試server+假資料(true) 還是使用真實的資料(false)
     boolean webtest = true;
     HttpURLConnection connection;
     URL url;
@@ -111,8 +112,12 @@ public class FirstActivity extends AppCompatActivity {
                     else
                     {
                         //real server we used
-                        //抓分區資訊輸入當連接link
-                        url = new URL(domain);
+                        //抓分區資訊輸入當連接link,0代表什麼都沒選，是不對的
+                        if(!domain.equals("0"))
+                        {
+                            url = new URL(domain);
+                        }
+
 
                     }
                 } catch (MalformedURLException e) {
@@ -170,7 +175,7 @@ public class FirstActivity extends AppCompatActivity {
                                 Log.e("HTTP","conn fail");
                             }
                             if(Hrecord) {
-
+                                //回傳資料
                                 Intent intent = new Intent(FirstActivity.this, MainActivity.class);
                                 intent.putExtra("SN", SN);
                                 try {
@@ -188,7 +193,7 @@ public class FirstActivity extends AppCompatActivity {
                             else
                             {
 
-                                // for testing,如果testing會回傳假資料
+                                // for testing,如果testing會回傳假資料,使agent 可以跳到開始運作流程
                                 if(webtest)
                                 {
 
@@ -212,7 +217,7 @@ public class FirstActivity extends AppCompatActivity {
 
                                     finish();
                                 }
-                                if(!webtest)
+                                if(!webtest)//不是測試就正常報錯
                                 {
                                     runOnUiThread(new Runnable() {
                                     @Override
@@ -238,12 +243,15 @@ public class FirstActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    String errormessage = "缺失以下資訊:\n";
-                    if(domain.equals("請選擇分區資訊"))
-                    {
-                        errormessage += "分區資訊\n";
-                    }
-                    Log.e("HTTP",errormessage);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),
+                                    "你還沒有選擇分區",Toast.LENGTH_LONG).show();
+                            Log.e("HTTP","fail text");
+                        }
+                    });
                 }
 
             }
