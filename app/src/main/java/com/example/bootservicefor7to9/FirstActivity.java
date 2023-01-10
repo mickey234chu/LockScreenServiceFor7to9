@@ -112,7 +112,11 @@ public class FirstActivity extends AppCompatActivity {
                     {
                         //real server we used
                         //抓分區資訊輸入當連接link
-                        url = new URL(domain);
+                        if(!domain.equals("0"))
+                        {
+                            url = new URL(domain);
+                        }
+
 
                     }
                 } catch (MalformedURLException e) {
@@ -238,8 +242,8 @@ public class FirstActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    String errormessage = "缺失以下資訊:\n";
-                    if(domain.equals("請選擇分區資訊"))
+                    String errormessage = "缺失以下資訊:";
+                    if(domain.equals("0"))
                     {
                         errormessage += "分區資訊\n";
                     }
