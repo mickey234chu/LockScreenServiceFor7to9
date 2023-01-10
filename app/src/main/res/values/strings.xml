@@ -3,11 +3,17 @@
     <!--表面選擇-->
     <string-array name="URL_list">
         <item>請選擇分區資訊</item>
-
+        <item>北區輔導團</item>
+        <item>中區輔導團</item>
+        <item>南區輔導團</item>
+        <item>東區輔導團</item>
     </string-array>
     <!--對應URL-->
     <string-array name="URL_list_value">
         <item>0</item>
-
+        <item>北區輔導團連接</item>
+        <item>中區輔導團連接</item>
+        <item>南區輔導團連接</item>
+        <item>東區輔導團連接</item>
     </string-array>
 </resources>
