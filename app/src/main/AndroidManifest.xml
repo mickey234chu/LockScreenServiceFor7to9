@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.bootservicefor7to9">
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -21,6 +22,7 @@
     <uses-permission android:name="android.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
+        android:screenOrientation="portrait"
         android:allowBackup="true"
         android:backupAgent=".MainActivity$MyPrefsBackupAgent"
         android:backupInForeground="true"
@@ -43,6 +45,7 @@
 
         <activity
             android:name=".FirstActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <receiver
@@ -87,6 +90,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:theme="@android:style/Theme.Black.NoTitleBar">
             <intent-filter>
