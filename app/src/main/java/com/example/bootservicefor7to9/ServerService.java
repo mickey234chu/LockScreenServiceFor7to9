@@ -1,6 +1,7 @@
 package com.example.bootservicefor7to9;
 
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -14,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Insets;
 import android.graphics.PixelFormat;
@@ -431,6 +433,7 @@ public class ServerService<Myboolean> extends Service {
         //get lockscreen layout
 
         floatView = (ViewGroup) inflater.inflate(R.layout.lockscreen, null);
+
         screentext = floatView.findViewWithTag("locktext");
         if(text.equals(""))
         {
@@ -467,7 +470,7 @@ public class ServerService<Myboolean> extends Service {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE ,
                 PixelFormat.TRANSLUCENT
         );
-
+        floatWindowLayoutParam.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         // The Gravity of the Floating Window is set.
         // The Window will appear in the center of the screen
 
