@@ -13,9 +13,7 @@ import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.View;
 
-/**
- * TODO: document your custom view class.
- */
+
 public class MoniterView extends View {
     private String mExampleString; //
     private int mExampleColor = Color.RED; //
@@ -52,19 +50,7 @@ public class MoniterView extends View {
         //Log.d("testkey", "keyCode:" + event.getKeyCode());
         Log.d("testkey","dispatch:KeyEvent" + event.getKeyCode());
         return true;
-       /* switch (event.getKeyCode())
-        {
-            case KeyEvent.KEYCODE_BACK:
-            case KeyEvent.KEYCODE_MENU:
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-            case KeyEvent.KEYCODE_VOLUME_UP:
-            case KeyEvent.KEYCODE_HOME:
-                Log.d("testkey","KeyEvent" + event.getKeyCode());
-                return  true;
-            default:
-                Log.d("testkey","KeyEvent.?");
-                return super.dispatchKeyEvent(event);
-        }*/
+
 
     }
 
@@ -72,28 +58,8 @@ public class MoniterView extends View {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
-       /*switch(keyCode)
-        {
-            case KeyEvent.KEYCODE_BACK:
-                Log.d("testkey","KeyEvent.KEYCODE_BACK");
-                break;
-            case KeyEvent.KEYCODE_MENU:
-                Log.d("testkey","KeyEvent.KEYCODE_MENU");
-                break;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                Log.d("testkey","KeyEvent.KEYCODE_VOLUME_DOWN");
-                break;
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                Log.d("testkey","KeyEvent.KEYCODE_VOLUME_UP");
-                break;
-            case KeyEvent.KEYCODE_HOME:
-                Log.d("testkey","KeyEvent.KEYCODE_HOME");
-                break;
-            default:
-                Log.d("testkey","KeyEvent.?");
-                break;
-        }
-        return  super.onKeyDown(keyCode,event);*/
+
+       // return  super.onKeyDown(keyCode,event);
         Log.d("testkey","down:KeyEvent.?");
         return  true;
     }

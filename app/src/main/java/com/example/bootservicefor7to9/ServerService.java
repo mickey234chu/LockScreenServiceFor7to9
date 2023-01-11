@@ -201,7 +201,17 @@ public class ServerService<Myboolean> extends Service {
         else
         {
             //使用正常開放給本載具的websocket
-            websocketLink = sharedPreferences.getString("socketaddress","")+ID;
+            String socketaddress = sharedPreferences.getString("socketaddress","");
+            String currentsocket = sharedPreferences.getString("currentsocket","");
+            if(currentsocket.equals("")||socketaddress == currentsocket)
+            {
+                websocketLink = socketaddress +ID;
+            }
+            else
+            {
+                websocketLink = currentsocket+ID ;
+            }
+
             //uri = URI.create(websocketLink+ID);
             Log.e("not test link ",websocketLink);
         }
@@ -679,6 +689,7 @@ public class ServerService<Myboolean> extends Service {
         public void onMessage(String message) {
             if (message != null) {
                 Log.e("MessageS",message);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
                 if(message.contains(ID))
                 {
                     if(message.contains(ID+"_lock") ) {
@@ -686,7 +697,7 @@ public class ServerService<Myboolean> extends Service {
 
                         String text = message.replaceFirst(ID+"_lock","").replaceFirst(":","");
 
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
+
                         if(text.length()>0)
                         {
                             handler.post(() -> {
@@ -747,7 +758,7 @@ public class ServerService<Myboolean> extends Service {
                             Log.e("TestService", Integer.toString(length));
                             StartLock = timetoint(getTime.split("[,]")[0]);
                             StopLock = timetoint (getTime.split("[,]")[1]);
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            //SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putInt("Starttime",StartLock).putInt("Endtime",StopLock).commit();
                             Log.e("time",Integer.toString(StopLock));
                             websocket.send(ID+" set time!");
@@ -763,8 +774,7 @@ public class ServerService<Myboolean> extends Service {
                     {
                         Lock_Flag = false;
                         Lost_Flag = false;
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        //editor.putBoolean("lock",Lock_Flag).commit();
+                        //SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean("lock", Lock_Flag).putBoolean("lost",Lost_Flag).commit();
                         if(!timerlockhandle(StartLock,StopLock))
                         {
@@ -774,12 +784,13 @@ public class ServerService<Myboolean> extends Service {
                     }
                     else if (message.contains(ID+"_timereset"))
                     {
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        //SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putInt("Starttime",-1).putInt("Endtime",-1).commit();
                         StartLock = -1;
                         StopLock = -1;
                         timelock = false;
-                        if(Block_Flag)//檢查有沒有已開啟的鎖定
+                        //檢查有沒有已開啟的鎖定
+                        if(Block_Flag)
                         {
                             windowManager.removeView(floatView);
                             lockManager.removeView(mMoniterView);
@@ -792,11 +803,14 @@ public class ServerService<Myboolean> extends Service {
                     }
                     else if (message.contains(ID+"_switch:"))//轉移新的websocket
                     {
-                        websocketLink = message.replaceFirst(ID+"_switch","").replaceFirst(":","")+ID;
+                        String newlink  = message.replaceFirst(ID+"_switch","").replaceFirst(":","");
+                        editor.putString("currentsocket",newlink).commit();
+                        websocketLink = newlink+ID;
+
                         //更換連接
                         Log.e("websocket link switch to:",websocketLink);
 
-                        //告知需要轉換socket
+                        //告知需要轉換websocket
                         changesocket = true;
 
                     }
@@ -811,7 +825,7 @@ public class ServerService<Myboolean> extends Service {
                                 websocket.send(ID + " message!");
                             });
                         }
-                        //Log.e("MESSAGE",text);
+
                     }
                 }
 
@@ -829,7 +843,11 @@ public class ServerService<Myboolean> extends Service {
             Log.e("websocketclose",reason+"|"+code);
 
             //非正常關閉
-            if(code != 1 || code != 1000)
+            if(code == 1 || code == 1000)
+            {
+
+            }
+            else
             {
                 handler.post(() -> {
                     Toast.makeText(getApplicationContext(),
@@ -839,7 +857,7 @@ public class ServerService<Myboolean> extends Service {
             }
 
 
-            closeReceiveConnect();
+           // closeReceiveConnect();
         }
 
         @Override
@@ -879,7 +897,7 @@ public class ServerService<Myboolean> extends Service {
 
     }
     //心跳包
-    private  static  final long HEART_BEAT_RATE = 20*1000;
+    private  static  final long HEART_BEAT_RATE = 60*1000;
     private final Handler mHandler = new Handler();
     //定時檢查鎖定
     private final Runnable LockFlagRunnable = new Runnable() {
@@ -947,9 +965,11 @@ public class ServerService<Myboolean> extends Service {
 
                 }
             }
+            //關上當前websocket,用於連上下一個websocket
             if(changesocket)
             {
                 closeReceiveConnect();
+                initwebSocket();
             }
             mHandler.postDelayed(this,2*1000);
         }
@@ -967,7 +987,7 @@ public class ServerService<Myboolean> extends Service {
                 }
                 else if (websocket.isOpen())
                 {
-                    //websocket.send(ID +"still alive");
+                    websocket.send(" ");
                     Log.e("websocket","still alive");
                 }
             }
@@ -1100,7 +1120,7 @@ public class ServerService<Myboolean> extends Service {
         }
 
     }
-    //收到switch指令時用
+
 
 
     //重新連線用
