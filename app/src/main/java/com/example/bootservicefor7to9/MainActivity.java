@@ -51,8 +51,8 @@ public class MainActivity extends ComponentActivity {
     public String SN;
     public boolean First = true;
     public final static int REQUEST_READ_PHONE_STATE = 1;
-    public boolean closescreen = false;
-
+    public boolean SNpermissions = false;
+    public boolean getout = true;
     TextView device;
     TextView os;
     TextView publicIP;
@@ -83,7 +83,8 @@ public class MainActivity extends ComponentActivity {
         }
         //先打開取SN碼權限的操作
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+        SNpermissions = sharedPreferences.getBoolean("SNpermissions",false);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED && !SNpermissions) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
 
         }
@@ -142,7 +143,9 @@ public class MainActivity extends ComponentActivity {
                                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 10);
                             }
                         });
-
+                    SNpermissions = true;
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("SNpermissions",true).commit();
                     builder.show();
 
 
@@ -155,12 +158,12 @@ public class MainActivity extends ComponentActivity {
                         .setMessage("需要打開權限才可以使用我们的app哦，請在setting中找到本app並打開權限頁面開啟所有要求權限")
                         .setPositiveButton("去允许", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface mDialog, int id) {
-                                closescreen = true;
+                                getout = false;
                                 finish();
                             }
                         });
                 //未知原因，onresume 會跑2次，所以第2次就不要打開視窗了
-                if(!closescreen ) {
+                if(SNpermissions && getout) {
                     builder.show();
                 }
 

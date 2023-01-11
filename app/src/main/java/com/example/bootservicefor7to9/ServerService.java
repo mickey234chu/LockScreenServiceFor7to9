@@ -987,6 +987,7 @@ public class ServerService<Myboolean> extends Service {
                 }
                 else if (websocket.isOpen())
                 {
+                    //心跳包在這，不發會因超時被無限斷連
                     websocket.send(" ");
                     Log.e("websocket","still alive");
                 }
